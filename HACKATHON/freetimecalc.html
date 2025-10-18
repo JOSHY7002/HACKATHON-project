@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFU Free Time Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 50px 45px;
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(204, 0, 0, 0.1);
+            border: 1px solid rgba(204, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #CC0000;
+            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666666;
+            margin-bottom: 40px;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        
+        .hours-display {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 35px;
+            background: rgba(204, 0, 0, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(204, 0, 0, 0.1);
+        }
+        
+        .hours-number {
+            font-size: 110px;
+            font-weight: 700;
+            color: #CC0000;
+            line-height: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -3px;
+        }
+        
+        .hours-label {
+            color: #666666;
+            font-size: 16px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(204, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #CC0000;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+            position: relative;
+            box-shadow: 0 0 10px rgba(204, 0, 0, 0.3);
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: -28px;
+            right: 0;
+            color: #CC0000;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .input-section {
+            margin-bottom: 28px;
+        }
+        
+        label {
+            display: block;
+            color: #333333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(204, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 15px;
+            background: #ffffff;
+            color: #333333;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:hover {
+            border-color: rgba(204, 0, 0, 0.5);
+            background: rgba(204, 0, 0, 0.02);
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #CC0000;
+            background: rgba(204, 0, 0, 0.02);
+            box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1);
+        }
+        
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(204, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 15px;
+            background: #ffffff;
+            color: #333333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:hover {
+            border-color: rgba(204, 0, 0, 0.5);
+            background: rgba(204, 0, 0, 0.02);
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #CC0000;
+            background: rgba(204, 0, 0, 0.02);
+            box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1);
+        }
+        
+        select option {
+            background: #ffffff;
+            color: #333333;
+        }
+        
+        .course-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .course-item select {
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background: rgba(204, 0, 0, 0.1);
+            color: #CC0000;
+            border: 1px solid rgba(204, 0, 0, 0.3);
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .remove-btn:hover {
+            background: rgba(204, 0, 0, 0.2);
+            border-color: rgba(204, 0, 0, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .add-course-btn {
+            background: rgba(204, 0, 0, 0.1);
+            color: #CC0000;
+            border: 1px solid rgba(204, 0, 0, 0.3);
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-course-btn:hover {
+            background: rgba(204, 0, 0, 0.2);
+            border-color: rgba(204, 0, 0, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .complete-btn {
+            background: #CC0000;
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 35px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(204, 0, 0, 0.3);
+        }
+        
+        .complete-btn:hover {
+            background: #B30000;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(204, 0, 0, 0.4);
+        }
+        
+        .complete-btn:active {
+            transform: translateY(0);
+        }
+        
+        .overview {
+            display: none;
+            margin-top: 40px;
+            padding: 35px;
+            background: rgba(204, 0, 0, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(204, 0, 0, 0.2);
+        }
+        
+        .overview h2 {
+            color: #CC0000;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        
+        .overview-item {
+            background: rgba(204, 0, 0, 0.03);
+            padding: 24px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            border-left: 3px solid #CC0000;
+            transition: all 0.3s ease;
+        }
+        
+        .overview-item:hover {
+            background: rgba(204, 0, 0, 0.05);
+            transform: translateX(4px);
+        }
+        
+        .overview-item h3 {
+            color: #333333;
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .overview-item p {
+            color: #666666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .overview-item .hours {
+            color: #CC0000;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .difficulty-message {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 3px solid #FFC107;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-style: italic;
+            color: #B38705;
+            font-size: 14px;
+        }
+        
+        .difficulty-message.easy {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10B981;
+            color: #0D9669;
+        }
+        
+        .difficulty-message.moderate {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3B82F6;
+            color: #1E5FC4;
+        }
+        
+        .difficulty-message.hard {
+            background: rgba(204, 0, 0, 0.1);
+            border-left-color: #CC0000;
+            color: #990000;
+        }
+        
+        .difficulty-message.extreme {
+            background: rgba(153, 0, 0, 0.15);
+            border-left-color: #990000;
+            color: #660000;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SFU Free Time Calculator</h1>
+        <p class="subtitle">Start with 168 hours per week</p>
+        
+        <div class="hours-display">
+            <div class="hours-number" id="hoursRemaining">168</div>
+            <div class="hours-label">hours of free time remaining</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">
+                    <span class="progress-text" id="progressText">100%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <label>Your Courses</label>
+            <div id="coursesContainer">
+                <div class="course-item">
+                    <select class="course-select" onchange="calculate()">
+                        <option value="0">Select a course</option>
+                        
+                        <!-- SEE Courses -->
+                        <optgroup label="SEE Courses">
+                            <option value="7">SEE100(3) (7hrs/week)</option>
+                            <option value="6">SEE101W(3) (6hrs/week)</option>
+                            <option value="6">SEE110(3) (6hrs/week)</option>
+                            <option value="6">SEE111(4) (6hrs/week)</option>
+                            <option value="6">SEE221(4) (6hrs/week)</option>
+                            <option value="6">SEE230(4) (6hrs/week)</option>
+                            <option value="5">SEE241(3) (5hrs/week)</option>
+                            <option value="6">CMPT130(3) (6hrs/week)</option>
+                            <option value="6">CMPT135(3) (6hrs/week)</option>
+                            <option value="6">MATH151(3) (6hrs/week)</option>
+                            <option value="6">MATH152(3) (6hrs/week)</option>
+                            <option value="6">MATH251(3) (6hrs/week)</option>
+                            <option value="6">MATH260(3) (6hrs/week)</option>
+                            <option value="10">PHYS140(4) (10hrs/week)</option>
+                            <option value="10">PHYS141(4) (10hrs/week)</option>
+                            <option value="7">CHEM120(4) (7hrs/week)</option>
+                        </optgroup>
+                        
+                        <!-- ENSC Courses -->
+                        <optgroup label="ENSC Courses">
+                            <option value="7">ENSC 180(3) (7hrs/week)</option>
+                            <option value="7">PHYS 120(3) (7hrs/week)</option>
+                            <option value="6">ENSC 100W(3) (6hrs/week)</option>
+                            <option value="6">ENSC 105W(3) (6hrs/week)</option>
+                            <option value="4">ENSC 120(2) (4hrs/week)</option>
+                            <option value="10">ENSC 151(4) (10hrs/week)</option>
+                        </optgroup>
+                        
+                        <!-- MSE Courses -->
+                        <optgroup label="MSE Courses">
+                            <option value="6">MATH 151(3) (6hrs/week)</option>
+                            <option value="6">MATH 152(3) (6hrs/week)</option>
+                            <option value="6">MATH 232(3) (6hrs/week)</option>
+                            <option value="7">MSE 103(3) (7hrs/week)</option>
+                            <option value="7">CMPT 130(3) (7hrs/week)</option>
+                            <option value="6">MATH 251(3) (6hrs/week)</option>
+                            <option value="11">CHEM 121(4) (11hrs/week)</option>
+                            <option value="7">MSE 102(3) (7hrs/week)</option>
+                            <option value="7">MSE 112(3) (7hrs/week)</option>
+                            <option value="7">MSE 101w(3) (7hrs/week)</option>
+                        </optgroup>
+                        
+                        <!-- SOSY Courses -->
+                        <optgroup label="SOSY Courses">
+                            <option value="6">CMPT 105W(3) (6hrs/week)</option>
+                            <option value="7">CMPT 135(3) (7hrs/week)</option>
+                            <option value="7">CMPT 225(3) (7hrs/week)</option>
+                            <option value="6">MACM 101(3) (6hrs/week)</option>
+                        </optgroup>
+                        
+                        <!-- Math Courses -->
+                        <optgroup label="Math Courses">
+                            <option value="6">MATH 151(3) (6hrs/week)</option>
+                            <option value="6">MATH 152(3) (6hrs/week)</option>
+                            <option value="6">MATH 232(3) (6hrs/week)</option>
+                            <option value="6">MATH 251(3) (6hrs/week)</option>
+                            <option value="6">MATH 260(3) (6hrs/week)</option>
+                            <option value="6">MACM 101(3) (6hrs/week)</option>
+                        </optgroup>
+                        
+                        <!-- Physics Courses -->
+                        <optgroup label="Physics Courses">
+                            <option value="7">PHYS 120(3) (7hrs/week)</option>
+                            <option value="10">PHYS 140(4) (10hrs/week)</option>
+                            <option value="10">PHYS 141(4) (10hrs/week)</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <button class="add-course-btn" onclick="addCourse()">+ Add Another Course</button>
+        </div>
+        
+        <div class="input-section">
+            <label for="sleep">Hours of sleep per night</label>
+            <input type="number" id="sleep" min="0" max="24" value="8" oninput="calculate()">
+        </div>
+        
+        <div class="input-section">
+            <label for="extracurriculars">Extracurriculars (hours per week)</label>
+            <input type="number" id="extracurriculars" min="0" value="0" oninput="calculate()">
+        </div>
+        
+        <div class="input-section">
+            <label for="commute">Daily commute (hours per school day)</label>
+            <input type="number" id="commute" min="0" step="0.5" value="0" oninput="calculate()">
+        </div>
+        
+        <button class="complete-btn" onclick="showOverview()">Complete & View Overview</button>
+        
+        <div class="overview" id="overview">
+            <h2>📊 Your Week at a Glance</h2>
+            <div id="overviewContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        function calculate() {
+            let total = 168;
+            
+            // Calculate course hours
+            const courseSelects = document.querySelectorAll('.course-select');
+            courseSelects.forEach(select => {
+                const hours = parseInt(select.value) || 0;
+                total -= hours;
+            });
+            
+            // Calculate sleep (per night * 7)
+            const sleep = parseFloat(document.getElementById('sleep').value) || 0;
+            total -= sleep * 7;
+            
+            // Calculate extracurriculars
+            const extra = parseFloat(document.getElementById('extracurriculars').value) || 0;
+            total -= extra;
+            
+            // Calculate commute (per school day * 5)
+            const commute = parseFloat(document.getElementById('commute').value) || 0;
+            total -= commute * 5;
+            
+            // Update display
+            const display = document.getElementById('hoursRemaining');
+            display.textContent = Math.max(0, total.toFixed(1));
+            
+            // Update progress bar
+            const percentage = Math.max(0, (total / 168) * 100);
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = percentage.toFixed(0) + '%';
+            
+            // Color coding for both number and progress bar
+            if (total < 20) {
+                display.style.color = '#990000';
+                progressBar.style.background = '#990000';
+                progressBar.style.boxShadow = '0 0 10px rgba(153, 0, 0, 0.5)';
+            } else if (total < 40) {
+                display.style.color = '#CC6600';
+                progressBar.style.background = '#CC6600';
+                progressBar.style.boxShadow = '0 0 10px rgba(204, 102, 0, 0.5)';
+            } else {
+                display.style.color = '#CC0000';
+                progressBar.style.background = '#CC0000';
+                progressBar.style.boxShadow = '0 0 10px rgba(204, 0, 0, 0.3)';
+            }
+        }
+        
+        function addCourse() {
+            const container = document.getElementById('coursesContainer');
+            const courseItem = document.createElement('div');
+            courseItem.className = 'course-item';
+            courseItem.innerHTML = `
+                <select class="course-select" onchange="calculate()">
+                    <option value="0">Select a course</option>
+                    
+                    <!-- SEE Courses -->
+                    <optgroup label="SEE Courses">
+                        <option value="7">SEE100(3) (7hrs/week)</option>
+                        <option value="6">SEE101W(3) (6hrs/week)</option>
+                        <option value="6">SEE110(3) (6hrs/week)</option>
+                        <option value="6">SEE111(4) (6hrs/week)</option>
+                        <option value="6">SEE221(4) (6hrs/week)</option>
+                        <option value="6">SEE230(4) (6hrs/week)</option>
+                        <option value="5">SEE241(3) (5hrs/week)</option>
+                        <option value="6">CMPT130(3) (6hrs/week)</option>
+                        <option value="6">CMPT135(3) (6hrs/week)</option>
+                        <option value="6">MATH151(3) (6hrs/week)</option>
+                        <option value="6">MATH152(3) (6hrs/week)</option>
+                        <option value="6">MATH251(3) (6hrs/week)</option>
+                        <option value="6">MATH260(3) (6hrs/week)</option>
+                        <option value="10">PHYS140(4) (10hrs/week)</option>
+                        <option value="10">PHYS141(4) (10hrs/week)</option>
+                        <option value="7">CHEM120(4) (7hrs/week)</option>
+                    </optgroup>
+                    
+                    <!-- ENSC Courses -->
+                    <optgroup label="ENSC Courses">
+                        <option value="7">ENSC 180(3) (7hrs/week)</option>
+                        <option value="7">PHYS 120(3) (7hrs/week)</option>
+                        <option value="6">ENSC 100W(3) (6hrs/week)</option>
+                        <option value="6">ENSC 105W(3) (6hrs/week)</option>
+                        <option value="4">ENSC 120(2) (4hrs/week)</option>
+                        <option value="10">ENSC 151(4) (10hrs/week)</option>
+                    </optgroup>
+                    
+                    <!-- MSE Courses -->
+                    <optgroup label="MSE Courses">
+                        <option value="6">Math 151(3) (6hrs/week)</option>
+                        <option value="6">Math 152(3) (6hrs/week)</option>
+                        <option value="6">Math 232(3) (6hrs/week)</option>
+                        <option value="7">MSE 103(3) (7hrs/week)</option>
+                        <option value="7">CMPT 130(3) (7hrs/week)</option>
+                        <option value="6">Math 251(3) (6hrs/week)</option>
+                        <option value="11">CHEM 121(4) (11hrs/week)</option>
+                        <option value="7">MSE 102(3) (7hrs/week)</option>
+                        <option value="7">MSE 112(3) (7hrs/week)</option>
+                        <option value="7">MSE 101w(3) (7hrs/week)</option>
+                    </optgroup>
+                    
+                    <!-- SOSY Courses -->
+                    <optgroup label="SOSY Courses">
+                        <option value="6">CMPT 105W(3) (6hrs/week)</option>
+                        <option value="7">CMPT 135(3) (7hrs/week)</option>
+                        <option value="7">CMPT 225(3) (7hrs/week)</option>
+                        <option value="6">MACM 101(3) (6hrs/week)</option>
+                    </optgroup>
+                    
+                    <!-- Math Courses -->
+                    <optgroup label="Math Courses">
+                        <option value="6">MATH 151(3) (6hrs/week)</option>
+                        <option value="6">MATH 152(3) (6hrs/week)</option>
+                        <option value="6">MATH 232(3) (6hrs/week)</option>
+                        <option value="6">MATH 251(3) (6hrs/week)</option>
+                        <option value="6">MATH 260(3) (6hrs/week)</option>
+                        <option value="6">MACM 101(3) (6hrs/week)</option>
+                    </optgroup>
+                    
+                    <!-- Physics Courses -->
+                    <optgroup label="Physics Courses">
+                        <option value="7">PHYS 120(3) (7hrs/week)</option>
+                        <option value="10">PHYS 140(4) (10hrs/week)</option>
+                        <option value="10">PHYS 141(4) (10hrs/week)</option>
+                    </optgroup>
+                </select>
+                <button class="remove-btn" onclick="removeCourse(this)">Remove</button>
+            `;
+            container.appendChild(courseItem);
+        }
+        
+        function removeCourse(btn) {
+            btn.parentElement.remove();
+            calculate();
+        }
+        
+        function showOverview() {
+            // Calculate all values
+            let courseHours = 0;
+            const courseSelects = document.querySelectorAll('.course-select');
+            courseSelects.forEach(select => {
+                const hours = parseInt(select.value) || 0;
+                courseHours += hours;
+            });
+            
+            const sleepHours = (parseFloat(document.getElementById('sleep').value) || 0) * 7;
+            const extraHours = parseFloat(document.getElementById('extracurriculars').value) || 0;
+            const commuteHours = (parseFloat(document.getElementById('commute').value) || 0) * 5;
+            const freeHours = Math.max(0, 168 - courseHours - sleepHours - extraHours - commuteHours);
+            
+            // Determine difficulty message for schoolwork
+            let difficultyMsg = '';
+            let difficultyClass = '';
+            
+            if (courseHours === 0) {
+                difficultyMsg = "No courses selected - enjoy your break! 🎉";
+                difficultyClass = 'easy';
+            } else if (courseHours < 15) {
+                difficultyMsg = "Light course load - you should be fine!";
+                difficultyClass = 'easy';
+            } else if (courseHours < 25) {
+                difficultyMsg = "Manageable schedule - a typical full-time student load. ";
+                difficultyClass = 'moderate';
+            } else if (courseHours < 30) {
+                difficultyMsg = "Heavy workload - make sure to stay organized and prioritize!";
+                difficultyClass = 'hard';
+            } else {
+                difficultyMsg = "Extremely demanding schedule - you will burn out, consider lightening. ";
+                difficultyClass = 'extreme';
+            }
+            
+            // Generate overview HTML
+            const overviewHTML = `
+                <div class="overview-item">
+                    <h3>📖 Schoolwork (Classes + Study Time)</h3>
+                    <div class="hours">${courseHours.toFixed(1)} hours/week</div>
+                    <p>${(courseHours / 168 * 100).toFixed(1)}% of your week</p>
+                    <div class="difficulty-message ${difficultyClass}">${difficultyMsg}</div>
+                </div>
+                
+                <div class="overview-item">
+                    <h3>😴 Sleep</h3>
+                    <div class="hours">${sleepHours.toFixed(1)} hours/week</div>
+                    <p>${(sleepHours / 168 * 100).toFixed(1)}% of your week</p>
+                    <p>${(sleepHours / 7).toFixed(1)} hours per night</p>
+                </div>
+                
+                <div class="overview-item">
+                    <h3>🎯 Extracurriculars</h3>
+                    <div class="hours">${extraHours.toFixed(1)} hours/week</div>
+                    <p>${(extraHours / 168 * 100).toFixed(1)}% of your week</p>
+                </div>
+                
+                <div class="overview-item">
+                    <h3>🚗 Commuting</h3>
+                    <div class="hours">${commuteHours.toFixed(1)} hours/week</div>
+                    <p>${(commuteHours / 168 * 100).toFixed(1)}% of your week</p>
+                </div>
+                
+                <div class="overview-item" style="border-left-color: #10b981;">
+                    <h3>✨ Free Time</h3>
+                    <div class="hours" style="color: #10b981;">${freeHours.toFixed(1)} hours/week</div>
+                    <p>${(freeHours / 168 * 100).toFixed(1)}% of your week</p>
+                    <p>${(freeHours / 7).toFixed(1)} hours per day on average</p>
+                </div>
+            `;
+            
+            document.getElementById('overviewContent').innerHTML = overviewHTML;
+            document.getElementById('overview').style.display = 'block';
+            
+            // Scroll to overview
+            document.getElementById('overview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
