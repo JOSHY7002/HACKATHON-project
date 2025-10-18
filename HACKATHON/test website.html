@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Spare Time Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f3f5;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0066cc;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .dropdown {
+            position: relative;
+            margin-top: 6px;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background: white;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1;
+            margin-top: 2px;
+        }
+
+        .dropdown-content label {
+            display: block;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-content label:hover {
+            background: #f0f8ff;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            border: none;
+            background: #0066cc;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eaf4ff;
+            border-radius: 8px;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .bar-segment {
+            height: 100%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Weekly Spare Time Calculator</h1>
+
+        <label>Hours of Sleep per Day</label>
+        <input type="text" id="sleep" placeholder="e.g., 8">
+
+        <label>Other Commitments (hours/week)</label>
+        <input type="text" id="commitments" placeholder="e.g., 20">
+
+        <label>Commute Time (hours/week)</label>
+        <input type="text" id="commute" placeholder="e.g., 7">
+
+        <label>Select Courses</label>
+        <div class="dropdown">
+            <div class="dropdown-btn" onclick="toggleDropdown()">Select Courses</div>
+            <div class="dropdown-content" id="courseList">
+                <label><input type="checkbox" value="SEE100,4,3"> SEE100 (4 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="SEE101W,3,3"> SEE101W (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="SEE110,3,3"> SEE110 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="SEE111,2,4"> SEE111 (2 hrs, 4 credits)</label>
+                <label><input type="checkbox" value="SEE221,2,4"> SEE221 (2 hrs, 4 credits)</label>
+                <label><input type="checkbox" value="SEE230,2,4"> SEE230 (2 hrs, 4 credits)</label>
+                <label><input type="checkbox" value="SEE241,2,3"> SEE241 (2 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="CMPT130,3,3"> CMPT130 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="CMPT135,3,3"> CMPT135 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="MATH151,3,3"> MATH151 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="MATH152,3,3"> MATH152 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="MATH251,3,3"> MATH251 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="MATH260,3,3"> MATH260 (3 hrs, 3 credits)</label>
+                <label><input type="checkbox" value="PHYS140,6,4"> PHYS140 (6 hrs, 4 credits)</label>
+                <label><input type="checkbox" value="PHYS141,6,4"> PHYS141 (6 hrs, 4 credits)</label>
+                <label><input type="checkbox" value="CHEM120,3,4"> CHEM120 (3 hrs, 4 credits)</label>
+            </div>
+        </div>
+
+        <button onclick="calculateSpareTime()">Calculate Spare Time</button>
+
+        <div class="result" id="result"></div>
+
+        <div class="bar-container" id="timeBar"></div>
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            const list = document.getElementById("courseList");
+            list.style.display = list.style.display === "block" ? "none" : "block";
+        }
+
+        function calculateSpareTime() {
+            const HOURS_IN_WEEK = 168;
+
+            const sleepPerDay = parseFloat(document.getElementById('sleep').value) || 0;
+            const commitments = parseFloat(document.getElementById('commitments').value) || 0;
+            const commute = parseFloat(document.getElementById('commute').value) || 0;
+
+            const selectedCourses = Array.from(document.querySelectorAll('#courseList input:checked'));
+
+            let totalLectureHours = 0;
+            let totalCredits = 0;
+
+            selectedCourses.forEach(opt => {
+                const [name, hours, credits] = opt.value.split(',');
+                totalLectureHours += parseFloat(hours);
+                totalCredits += parseFloat(credits);
+            });
+
+            const sleep = sleepPerDay * 7;
+            const totalUsed = sleep + commitments + commute + totalLectureHours + totalCredits;
+            const spareTime = HOURS_IN_WEEK - totalUsed;
+
+            let status = "🟢 Healthy balance!";
+            if (spareTime < 40) status = "🟡 Busy — plan rest!";
+            if (spareTime < 20) status = "🔴 Overloaded!";
+
+            document.getElementById('result').innerHTML = `
+      <h3>Results</h3>
+      <p><b>Total Lecture Hours:</b> ${totalLectureHours} hrs/week</p>
+      <p><b>Total Course Credits:</b> ${totalCredits}</p>
+      <p><b>Total Used Hours:</b> ${totalUsed.toFixed(1)} hrs/week</p>
+      <p><b>Spare Time:</b> ${spareTime.toFixed(1)} hrs/week</p>
+      <p><b>Status:</b> ${status}</p>
+    `;
+
+            // Create bar segments
+            const bar = document.getElementById('timeBar');
+            bar.innerHTML = '';
+
+            const segments = [
+                { label: 'Sleep', hours: sleep, color: '#4CAF50' },
+                { label: 'Commitments', hours: commitments, color: '#2196F3' },
+                { label: 'Commute', hours: commute, color: '#FF9800' },
+                { label: 'Lecture Hours', hours: totalLectureHours, color: '#9C27B0' },
+                { label: 'Course Credits', hours: totalCredits, color: '#f44336' },
+                { label: 'Spare Time', hours: spareTime, color: '#607D8B' }
+            ];
+
+            segments.forEach(seg => {
+                const widthPercent = (seg.hours / HOURS_IN_WEEK) * 100;
+                const div = document.createElement('div');
+                div.className = 'bar-segment';
+                div.style.width = widthPercent + '%';
+                div.style.backgroundColor = seg.color;
+                div.textContent = seg.hours > 0 ? seg.label : '';
+                bar.appendChild(div);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
